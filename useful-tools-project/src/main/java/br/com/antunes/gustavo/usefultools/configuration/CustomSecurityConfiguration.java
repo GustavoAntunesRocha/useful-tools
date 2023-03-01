@@ -7,6 +7,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class CustomSecurityConfiguration {
@@ -15,6 +16,8 @@ public class CustomSecurityConfiguration {
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.securityMatcher(PathRequest.toH2Console());
+		http.authorizeHttpRequests().requestMatchers("/swagger-ui/**").permitAll();
+		http.authorizeHttpRequests().requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll();
 		http.csrf((csrf) -> csrf.disable());
 		http.headers((headers) -> headers.frameOptions().sameOrigin());
 		return http.build();
