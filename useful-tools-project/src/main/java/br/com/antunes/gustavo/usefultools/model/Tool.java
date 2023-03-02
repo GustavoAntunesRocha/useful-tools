@@ -7,7 +7,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 public class Tool {
@@ -22,7 +24,12 @@ public class Tool {
 	
 	private String description;
 	
-	@OneToMany(fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.PERSIST)
+	@JoinTable(
+	        name = "tool_tag",
+	        joinColumns = @JoinColumn(name = "tool_id", referencedColumnName="id"),
+	        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName="id")
+	    )
 	private Set<Tag> tags;
 	
 	public Tool() {}

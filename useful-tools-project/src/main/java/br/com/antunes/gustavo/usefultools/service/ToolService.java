@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,17 +24,18 @@ public class ToolService {
     @Autowired
     private TagRepository tagRepository;
 
-    public void create(ToolDTO toolDTO) {
+    public Tool create(ToolDTO toolDTO) {
         Tool tool = new Tool();
         tool.setTitle(toolDTO.getTitle());
         tool.setDescription(toolDTO.getDescription());
         tool.setLink(toolDTO.getLink());
         tool.setTags(mapTagNamesToEntities(toolDTO.getTagNames()));
         toolRepository.save(tool);
+        return tool;
     }
 
     @Transactional
-    public void update(ToolDTO toolDTO) {
+    public Tool update(ToolDTO toolDTO) {
         Optional<Tool> toolOptional = toolRepository.findById(toolDTO.getId());
         Tool tool = toolOptional.get();
         tool.setTitle(toolDTO.getTitle());
@@ -41,6 +43,7 @@ public class ToolService {
         tool.setLink(toolDTO.getLink());
         tool.setTags(mapTagNamesToEntities(toolDTO.getTagNames()));
         toolRepository.save(tool);
+        return tool;
     }
 
     public void delete(int id) {
@@ -60,4 +63,25 @@ public class ToolService {
         }
         return tags;
     }
+
+	public ToolDTO getToolById(int id) {
+		Optional<Tool> toolOptional = toolRepository.findById(id);
+        Tool tool = toolOptional.get();
+		return mapToDTO(tool);
+	}
+	
+	private List<String> mapTags(Set<Tag> tags) {
+	    return tags.stream().map(Tag::getName).collect(Collectors.toList());
+	}
+	
+	public ToolDTO mapToDTO(Tool tool) {
+	    ToolDTO dto = new ToolDTO();
+	    dto.setId(tool.getId());
+	    dto.setTitle(tool.getTitle());
+	    dto.setDescription(tool.getDescription());
+	    dto.setLink(tool.getLink());
+	    dto.setTagNames(mapTags(tool.getTags()));
+	    return dto;
+	}
+
 }
