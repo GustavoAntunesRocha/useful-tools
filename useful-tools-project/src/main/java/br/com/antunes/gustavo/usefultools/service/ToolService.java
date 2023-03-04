@@ -53,8 +53,13 @@ public class ToolService {
         return tool;
     }
 
-    public void delete(int id) {
+    public Tool delete(int id) {
+    	Optional<Tool> toolOptional = toolRepository.findById(id);
+    	if(toolOptional.isEmpty()) {
+        	throw new ToolException("Tool with the id '" + id +"' not found in the database!");
+        }
         toolRepository.deleteById(id);
+        return toolOptional.get();
     }
 
     private Set<Tag> mapTagNamesToEntities(List<String> tagNames) {
@@ -73,6 +78,9 @@ public class ToolService {
 
 	public ToolDTO getToolById(int id) {
 		Optional<Tool> toolOptional = toolRepository.findById(id);
+		if(toolOptional.isEmpty()) {
+			throw new ToolException("Tool with the id '" + id +"' not found in the database!");
+		}
         Tool tool = toolOptional.get();
 		return mapToDTO(tool);
 	}
