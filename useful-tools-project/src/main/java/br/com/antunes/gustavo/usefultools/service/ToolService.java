@@ -9,7 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import br.com.antunes.gustavo.usefultools.dto.ToolDTO;
+import br.com.antunes.gustavo.usefultools.exception.ToolException;
 import br.com.antunes.gustavo.usefultools.model.Tag;
 import br.com.antunes.gustavo.usefultools.model.Tool;
 import br.com.antunes.gustavo.usefultools.repository.TagRepository;
@@ -37,6 +41,9 @@ public class ToolService {
     @Transactional
     public Tool update(ToolDTO toolDTO) {
         Optional<Tool> toolOptional = toolRepository.findById(toolDTO.getId());
+        if(toolOptional.isEmpty()) {
+        	throw new ToolException("Tool with the id '" + toolDTO.getId() +"' not found in the database!");
+        }
         Tool tool = toolOptional.get();
         tool.setTitle(toolDTO.getTitle());
         tool.setDescription(toolDTO.getDescription());
@@ -82,6 +89,16 @@ public class ToolService {
 	    dto.setLink(tool.getLink());
 	    dto.setTagNames(mapTags(tool.getTags()));
 	    return dto;
+	}
+	
+	public String serializeToJson(ToolDTO toolDTO) {
+	    try {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+	        return objectMapper.writeValueAsString(toolDTO);
+	    } catch (Exception e) {
+	        throw new RuntimeException("Failed to serialize ToolDTO to JSON", e);
+	    }
 	}
 
 }

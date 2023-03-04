@@ -2,9 +2,12 @@ package br.com.antunes.gustavo.usefultools.dto;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 public class ToolDTO {
     private int id;
 
+    @NotNull
     private String title;
 
     private String description;
