@@ -2,7 +2,9 @@ package br.com.antunes.gustavo.usefultools.controller;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.antunes.gustavo.usefultools.dto.ToolDTO;
 import br.com.antunes.gustavo.usefultools.exception.ApiErrorResponse;
 import br.com.antunes.gustavo.usefultools.exception.ToolException;
+import br.com.antunes.gustavo.usefultools.model.Tool;
 import br.com.antunes.gustavo.usefultools.service.ToolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -113,6 +116,40 @@ public class ToolController {
 	    );
 
 	    return ResponseEntity.badRequest().body(errorResponse);
+	}
+	
+	@Operation(description = "Get a list of tools given a tag name", responses = {
+			@ApiResponse(responseCode = "200", description = "Successfully retrieved tools!", content = @Content(mediaType = "application/json")) })
+	@GetMapping("/tag/{tagName}")
+	public ResponseEntity<?> getToolsByTag(@PathVariable String tagName) {
+		List<ToolDTO> toolDTOList = new ArrayList<>();
+		try {
+			Set<Tool> tools = toolService.getByTag(tagName);
+			for (Tool tool : tools) {
+				toolDTOList.add(toolService.mapToDTO(tool));
+			}
+		} catch (ToolException e) {
+			// TODO Auto-generated catch block
+			return handleCustomException(e);
+		}
+		return ResponseEntity.ok(toolDTOList);
+	}
+	
+	@Operation(description = "Get a list of tools given a tag name", responses = {
+			@ApiResponse(responseCode = "200", description = "Successfully retrieved tools!", content = @Content(mediaType = "application/json")) })
+	@GetMapping
+	public ResponseEntity<?> getAll() {
+		List<ToolDTO> toolDTOList = new ArrayList<>();
+		try {
+			List<Tool> tools = toolService.getAllTools();
+			for (Tool tool : tools) {
+				toolDTOList.add(toolService.mapToDTO(tool));
+			}
+		} catch (ToolException e) {
+			// TODO Auto-generated catch block
+			return handleCustomException(e);
+		}
+		return ResponseEntity.ok(toolDTOList);
 	}
 
 }

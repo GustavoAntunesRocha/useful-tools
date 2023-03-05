@@ -16,7 +16,6 @@ import br.com.antunes.gustavo.usefultools.dto.ToolDTO;
 import br.com.antunes.gustavo.usefultools.exception.ToolException;
 import br.com.antunes.gustavo.usefultools.model.Tag;
 import br.com.antunes.gustavo.usefultools.model.Tool;
-import br.com.antunes.gustavo.usefultools.repository.TagRepository;
 import br.com.antunes.gustavo.usefultools.repository.ToolRepository;
 import jakarta.transaction.Transactional;
 
@@ -24,9 +23,9 @@ import jakarta.transaction.Transactional;
 public class ToolService {
     @Autowired
     private ToolRepository toolRepository;
-
+    
     @Autowired
-    private TagRepository tagRepository;
+    private TagService tagService;
 
     public Tool create(ToolDTO toolDTO) {
         Tool tool = new Tool();
@@ -65,11 +64,11 @@ public class ToolService {
     private Set<Tag> mapTagNamesToEntities(List<String> tagNames) {
         Set<Tag> tags = new HashSet<>();
         for (String tagName : tagNames) {
-            Tag tag = tagRepository.findByName(tagName);
+            Tag tag = tagService.searchTagByName(tagName);
             if (tag == null) {
                 tag = new Tag();
                 tag.setName(tagName);
-                tagRepository.save(tag);
+                tagService.createTag(tag);
             }
             tags.add(tag);
         }
@@ -83,6 +82,22 @@ public class ToolService {
 		}
         Tool tool = toolOptional.get();
 		return mapToDTO(tool);
+	}
+	
+	public List<Tool> getAllTools(){
+		List<Tool> tools = toolRepository.findAll();
+		if(tools.isEmpty()) {
+			throw new ToolException("No tools found!");
+		}
+		return tools;
+	}
+	
+	public Set<Tool> getByTag(String tagName) {
+		Set<Tool> tools = toolRepository.findByTagsName(tagName);
+		if(tools.isEmpty()) {
+			throw new ToolException("No tool was found with the tag: " + tagName);
+		}
+		return tools;
 	}
 	
 	private List<String> mapTags(Set<Tag> tags) {
